@@ -8,10 +8,12 @@ import utils
 from states import Gen
 from utils import translate_text
 
+
 import kb
 import text
 
 router = Router()
+
 
 @router.message(Command("start"))
 async def start_handler(msg: Message):
@@ -34,3 +36,19 @@ async def translate_2(msg: Message, state: FSMContext):
     await msg.answer(translate_text(msg.text))
 
 
+@router.callback_query(F.data == "play")
+async def game_1(msg: Message, state: FSMContext):
+    await state.set_state(Gen.play)
+    await msg.answer(text.Game_rules, reply_markup=kb.game_choose)
+
+
+@router.callback_query(F.data == "Rus_English")
+async def game_1(msg: Message, state: FSMContext):
+    await state.set_state(Gen.Rus_English)
+    await msg("Первое слово игры")
+
+
+@router.callback_query(F.data == "English_Rus")
+async def game_1(msg: Message, state: FSMContext):
+    await state.set_state(Gen.English_Rus)
+    await msg("Первое слово игры")
