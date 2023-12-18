@@ -40,9 +40,9 @@ class Database:
 
 db = Database(db_url=settings.db_url)
 db.connect()
-#
-#
-#
+
+
+
 # word_site = "https://www.mit.edu/~ecprice/wordlist.10000"
 #
 # response = requests.get(word_site)

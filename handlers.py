@@ -74,11 +74,11 @@ async def game_1(query: CallbackQuery, state: FSMContext, bot: Bot):
 
 @router.callback_query(Gen.Rus_English, F.data == "false")
 async def game_1(query: CallbackQuery, state: FSMContext, bot: Bot):
-    await bot.send_message(chat_id=query.from_user.id, text="Ты ответил неверно или Савва гавноед!")
+    await bot.send_message(chat_id=query.from_user.id, text="Ты ответил неверно!")
     word = db.sql_query(query=select(Word).limit(1).order_by(func.random()))
     words = db.sql_query(
         query=select(Word).limit(3).order_by(func.random()).where(Word.id != word.id), single=False)
-    keyboard = kb.get_words(word=word, choices_words=words, en_ru=True)
+    keyboard = kb.get_words(word=word, choices_words=words, en_ru=False)
     await bot.send_message(chat_id=query.from_user.id, text=word.ru_name, reply_markup=keyboard)
 
 
@@ -94,7 +94,7 @@ async def game_1(query: CallbackQuery, state: FSMContext, bot: Bot):
 
 @router.callback_query(Gen.English_Rus, F.data == "false")
 async def game_1(query: CallbackQuery, state: FSMContext, bot: Bot):
-    await bot.send_message(chat_id=query.from_user.id, text="Ты ответил неверно или Савва гавноед!")
+    await bot.send_message(chat_id=query.from_user.id, text="Ты ответил неверно!")
     word = db.sql_query(query=select(Word).limit(1).order_by(func.random()))
     words = db.sql_query(
         query=select(Word).limit(3).order_by(func.random()).where(Word.id != word.id), single=False)
