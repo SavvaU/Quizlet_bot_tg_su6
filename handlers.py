@@ -2,9 +2,12 @@ from aiogram import F, Router, Bot
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
+from sqlalchemy import select, func
 
 import kb
 import text
+from db import db
+from models import Word
 from states import Gen
 from utils import translate_text
 
@@ -36,16 +39,64 @@ async def translate_2(msg: Message, state: FSMContext):
 async def game_1(query: CallbackQuery, state: FSMContext, bot: Bot):
     await state.set_state(Gen.play)
     await bot.send_message(chat_id=query.from_user.id, text=text.Game_rules,
-                           reply_markup=kb.game_choose)
+                           reply_markup=kb.game)
 
 
 @router.callback_query(F.data == "Rus_English")
 async def game_1(query: CallbackQuery, state: FSMContext, bot: Bot):
     await state.set_state(Gen.Rus_English)
-    await bot.send_message(chat_id=query.from_user.id, text="Первое слово игры")
+    word = db.sql_query(query=select(Word).limit(1).order_by(func.random()))
+    words = db.sql_query(
+        query=select(Word).limit(3).order_by(func.random()).where(Word.id != word.id), single=False)
+    keyboard = kb.get_words(word=word, choices_words=words, en_ru=False)
+    await bot.send_message(chat_id=query.from_user.id, text=word.ru_name, reply_markup=keyboard)
 
 
 @router.callback_query(F.data == "English_Rus")
 async def game_1(query: CallbackQuery, state: FSMContext, bot: Bot):
     await state.set_state(Gen.English_Rus)
-    await bot.send_message(chat_id=query.from_user.id, text="Первое слово игры")
+    word = db.sql_query(query=select(Word).limit(1).order_by(func.random()))
+    words = db.sql_query(
+        query=select(Word).limit(3).order_by(func.random()).where(Word.id != word.id), single=False)
+    keyboard = kb.get_words(word=word, choices_words=words, en_ru=True)
+    await bot.send_message(chat_id=query.from_user.id, text=word.eng_name, reply_markup=keyboard)
+
+
+@router.callback_query(Gen.Rus_English, F.data == "true")
+async def game_1(query: CallbackQuery, state: FSMContext, bot: Bot):
+    await bot.send_message(chat_id=query.from_user.id, text="Ты ответил верно!")
+    word = db.sql_query(query=select(Word).limit(1).order_by(func.random()))
+    words = db.sql_query(
+        query=select(Word).limit(3).order_by(func.random()).where(Word.id != word.id), single=False)
+    keyboard = kb.get_words(word=word, choices_words=words, en_ru=False)
+    await bot.send_message(chat_id=query.from_user.id, text=word.ru_name, reply_markup=keyboard)
+
+
+@router.callback_query(Gen.Rus_English, F.data == "false")
+async def game_1(query: CallbackQuery, state: FSMContext, bot: Bot):
+    await bot.send_message(chat_id=query.from_user.id, text="Ты ответил неверно или Савва гавноед!")
+    word = db.sql_query(query=select(Word).limit(1).order_by(func.random()))
+    words = db.sql_query(
+        query=select(Word).limit(3).order_by(func.random()).where(Word.id != word.id), single=False)
+    keyboard = kb.get_words(word=word, choices_words=words, en_ru=True)
+    await bot.send_message(chat_id=query.from_user.id, text=word.ru_name, reply_markup=keyboard)
+
+
+@router.callback_query(Gen.English_Rus, F.data == "true")
+async def game_1(query: CallbackQuery, state: FSMContext, bot: Bot):
+    await bot.send_message(chat_id=query.from_user.id, text="Ты ответил верно!")
+    word = db.sql_query(query=select(Word).limit(1).order_by(func.random()))
+    words = db.sql_query(
+        query=select(Word).limit(3).order_by(func.random()).where(Word.id != word.id), single=False)
+    keyboard = kb.get_words(word=word, choices_words=words, en_ru=True)
+    await bot.send_message(chat_id=query.from_user.id, text=word.eng_name, reply_markup=keyboard)
+
+
+@router.callback_query(Gen.English_Rus, F.data == "false")
+async def game_1(query: CallbackQuery, state: FSMContext, bot: Bot):
+    await bot.send_message(chat_id=query.from_user.id, text="Ты ответил неверно или Савва гавноед!")
+    word = db.sql_query(query=select(Word).limit(1).order_by(func.random()))
+    words = db.sql_query(
+        query=select(Word).limit(3).order_by(func.random()).where(Word.id != word.id), single=False)
+    keyboard = kb.get_words(word=word, choices_words=words, en_ru=True)
+    await bot.send_message(chat_id=query.from_user.id, text=word.eng_name, reply_markup=keyboard)

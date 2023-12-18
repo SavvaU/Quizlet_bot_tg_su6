@@ -9,6 +9,7 @@ from config import settings
 from handlers import router
 
 
+
 async def main():
     bot = Bot(token=settings.bot_token, parse_mode=ParseMode.HTML)
     dp = Dispatcher(storage=MemoryStorage())
